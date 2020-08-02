@@ -21,7 +21,7 @@ Board class >> randomlyComposedOf: anAmountOfTiles [
 ]
 
 { #category : #initialization }
-Board >> initializeComposedOfTiles: aGroupOfTiles. [
+Board >> initializeComposedOfTiles: aGroupOfTiles [.
 tiles:=aGroupOfTiles.
 ]
 

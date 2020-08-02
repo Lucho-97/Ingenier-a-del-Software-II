@@ -19,3 +19,10 @@ BoardTest >> testRandomBoardIsCreated [
 	board := Board randomlyComposedOf: 20.
 	self assert: (board tiles allSatisfy: [ :tile | Tile allSubclasses includes: tile class ])
 ]
+
+{ #category : #tests }
+BoardTest >> testRandomBoardIsCreated2 [
+	| board |
+	board := Board randomlyComposedOf: 20.
+	self assert: (board tiles allSatisfy: [ :tile | Tile allSubclasses includes: tile class ])
+]

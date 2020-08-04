@@ -1,11 +1,14 @@
 Class {
 	#name : #RandomDice,
 	#superclass : #Dice,
+	#classInstVars : [
+		'aNumberOfSides'
+	],
 	#category : #'IngSoft2-Model'
 }
 
 { #category : #'as yet unclassified' }
-RandomDice class >> ofSides: aNumberOfSides [
+RandomDice class >> ofSides: aNumberOfSides [ 
 	self assertValidNumberOfSides: aNumberOfSides.
 	^ self new initializeOfSides: aNumberOfSides
 ]
@@ -16,9 +19,6 @@ RandomDice >> initializeOfSides: aNumberOfSides [
 ]
 
 { #category : #actions }
-RandomDice >> throw [
-	| aRandomSeries aRandomInt |
-	aRandomSeries := Random new.
-	aRandomInt := aRandomSeries nextInt: quantityOfSides.
-	^ aRandomInt
+RandomDice >> throw [ 
+	^ quantityOfSides atRandom
 ]

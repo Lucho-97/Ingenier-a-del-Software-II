@@ -73,12 +73,12 @@ GameTestWithCards >> testAccelerationCardAffectsTurnOfPlayer [
 	self assert: (game lapOf: john) equals: 0.
 	self assert: (game positionOf: tim) equals: 3.
 	self assert: (game lapOf: tim) equals: 0.
-	self assert: (game amountOfActivePermanentCardsfor: john) equals: 1.
-	self assert: (game amountOfActivePermanentCardsfor: tim) equals: 1
+	self assert: (game activePermanentCardsfor: john) size equals: 1.
+	self assert: (game activePermanentCardsfor: tim) size equals: 1
 ]
 
 { #category : #tests }
-GameTestWithCards >> testAccelerationCardIsCancelled [
+GameTestWithCards >> testAccelerationCardIsCancelled [ 
 	| board john tim players dice dices game deck acceleration1 acceleration2 acceleration3 cancellation1 cancellation2 cancellation3 |
 	deck := OrderedCollection new.
 	deck add: (acceleration1 := Acceleration new).
@@ -100,13 +100,13 @@ GameTestWithCards >> testAccelerationCardIsCancelled [
 		usingDeck: (DeterministicDeck withFutureCards: deck)
 		withNumberOfLaps: 3.
 	self deny: game hasEnded.
-	self assert: (game handSizeOf: john) equals: 2.
-	game playAccelerationFromPlayer: john.
-	self assert: (game handSizeOf: john) equals: 1.
-	self assert: (game amountOfActivePermanentCardsfor: john) equals: 1.
-	game playCancellationFromPlayer: john ForCard: acceleration1.
-	self assert: (game amountOfActivePermanentCardsfor: john) equals: 0.
-	self assert: (game amountOfActivePermanentCardsfor: tim) equals: 0
+	self assert: (game handOf: john) size equals: 2.
+	game playCard: acceleration1 fromPlayer: john.
+	self assert: (game handOf: john) size equals: 1.
+	self assert: (game activePermanentCardsfor: john) size equals: 1.
+	game playCard: cancellation1 fromPlayer: john forCard: acceleration1.
+	self assert: (game activePermanentCardsfor: john) size equals: 0.
+	self assert: (game activePermanentCardsfor: tim) size equals: 0
 ]
 
 { #category : #tests }

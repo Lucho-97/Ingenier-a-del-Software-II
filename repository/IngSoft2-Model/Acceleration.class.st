@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #actions }
-Acceleration >> activateCardEffectFor: aPlayer in: aGame [
+Acceleration >> activateCardEffectIn: aGame [
 	aGame players do: [ :player | aGame addPermanentCard: self to: player ]
 ]
 

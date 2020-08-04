@@ -5,6 +5,6 @@ Class {
 }
 
 { #category : #actions }
-DrawACard >> activateEffectforGame: aGame forPlayer: aPlayer [
+DrawACard >> activateEffectforIn: aGame forPlayer: aPlayer [
 	aGame drawCardForPlayer: aPlayer
 ]

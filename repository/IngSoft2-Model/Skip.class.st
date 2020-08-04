@@ -1,9 +1,10 @@
 Class {
-	#name : #Reverse,
+	#name : #Skip,
 	#superclass : #InstantCard,
 	#category : #'IngSoft2-Model'
 }
 
 { #category : #actions }
-Reverse >> activateCardEffectIn: aGame [
+Skip >> activateCardEffectForPlayer: aTargetPlayer in: aGame [
+	
 ]

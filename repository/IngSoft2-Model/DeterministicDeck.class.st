@@ -3,6 +3,7 @@ Class {
 	#superclass : #Deck,
 	#instVars : [
 		'futureCards',
+		'cards',
 		'currentDeckPosition'
 	],
 	#classInstVars : [
@@ -17,17 +18,21 @@ DeterministicDeck class >> withFutureCards: aCardsArray [
 	
 ]
 
+{ #category : #accesing }
+DeterministicDeck >> cards [
+^cards 
+]
+
 { #category : #actions }
 DeterministicDeck >> drawCardInGame: aGame [
 	currentDeckPosition := currentDeckPosition + 1.
-	currentDeckPosition > futureCards size
+	currentDeckPosition > cards size
 		ifTrue: [ AssertionFailure signal: 'The deck is out of cards' ].
-	^ futureCards at: currentDeckPosition
+	^ cards at: currentDeckPosition
 ]
 
 { #category : #initialization }
-DeterministicDeck >> initializeWithFutureCards: aCardsArray [
-	futureCards := aCardsArray.
-	
+DeterministicDeck >> initializeWithFutureCards: aCardsArray [ 
+	cards := aCardsArray.
 	currentDeckPosition := 0
 ]

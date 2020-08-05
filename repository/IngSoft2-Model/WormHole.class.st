@@ -5,6 +5,6 @@ Class {
 }
 
 { #category : #actions }
-WormHole >> activateEffectforIn: aGame forPlayer: aPlayer [
+WormHole >> activateEffectIn: aGame forPlayer: aPlayer [
 	aGame changePositionOf: aPlayer by: 4 negated
 ]

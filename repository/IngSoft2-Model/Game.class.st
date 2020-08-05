@@ -87,7 +87,7 @@ Game >> currentTilefor: aPlayer [
 ]
 
 { #category : #actions }
-Game >> drawCardForPlayer: aPlayer [ 
+Game >> drawCardForPlayer: aPlayer [
 	(self handOf: aPlayer) add: (cardGenerator drawCardInGame: self)
 	
 ]
@@ -177,16 +177,12 @@ Game >> playCard: aCard fromPlayer: aPlayer forPlayer: targetPlayer [
 ]
 
 { #category : #accessing }
-Game >> playTurnFor: aPlayer [
-	| totalRoll |
-	totalRoll := dices sumNumbers: [ :dice | dice throw ].
-	totalRoll := totalRoll + ((activePermanentCards at: aPlayer) sumNumbers: [ :card | card tilesToMove ]).
+Game >> playTurnFor: aPlayer [ 
+	self changePositionOf: aPlayer by: (self calculateTilesToMoveFor: aPlayer).
 	
-	self changePositionOf: aPlayer by: totalRoll.
-	self recalculateLaps.
 	lastTileActivated := (self currentTilefor: aPlayer) -> aPlayer.
-	(self currentTilefor: aPlayer) activateEffectforIn: self forPlayer: self currentPlayer.
-	self recalculateLaps.
+	(self currentTilefor: aPlayer) activateEffectIn: self forPlayer: self currentPlayer.
+
 	(self lapOf: aPlayer) >= winningLap
 		ifTrue: [ self updateGameState ]
 ]

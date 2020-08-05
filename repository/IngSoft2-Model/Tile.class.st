@@ -5,6 +5,6 @@ Class {
 }
 
 { #category : #actions }
-Tile >> activateEffectforIn: aGame forPlayer: aPlayer [
+Tile >> activateEffectIn: aGame forPlayer: aPlayer [
 	self subclassResponsibility
 ]

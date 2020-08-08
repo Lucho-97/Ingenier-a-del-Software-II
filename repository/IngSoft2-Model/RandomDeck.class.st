@@ -15,5 +15,6 @@ RandomDeck >> drawCardInGame: aGame [
 		add: Repeat new;
 		add: Double new;
 		add: Skip new;
+		add: Reverse new;
 		atRandom
 ]

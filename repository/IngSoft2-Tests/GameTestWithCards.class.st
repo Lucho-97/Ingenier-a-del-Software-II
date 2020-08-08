@@ -830,7 +830,7 @@ GameTestWithCards >> testSkipCardIsUsed [
 	self assert: (game spaceOf: tim) equals: 6.
 	self assert: (game lapOf: tim) equals: 0.
 	game turnOf: john.
-		game assert: (game currentPlayer) = 'Tim'.
+	game assert: (game currentPlayer) = 'Tim'.
 	game playCard: skip2 fromPlayer: john.
 	game assert: (game currentPlayer) = 'John'.
 	game turnOf: john.

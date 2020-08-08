@@ -206,12 +206,6 @@ Game >> preparePlayers: aGroupOfPlayers [
 			activePermanentCards at: player put: OrderedCollection new ]
 ]
 
-{ #category : #actions }
-Game >> printTurn [
-	 self printOn:  'asd'.
-
-]
-
 { #category : #removing }
 Game >> removePermanentCard: aCard from: aPlayer [
 	(activePermanentCards at: aPlayer) removeAllSuchThat: [ :card | aCard  = card  ]
@@ -223,7 +217,7 @@ Game >> reverseTheOrderOfPlayers [
 		lastPlayer:= orderOfTurns at: turn.		
 		orderOfTurns := orderOfTurns reversed.
 
-		turn:= (orderOfTurns indexOf: lastPlayer)+1 > self players size
+		turn:= (orderOfTurns indexOf: lastPlayer)+1 > orderOfTurns size
 			ifTrue: [ 1 ]
 			ifFalse: [ (orderOfTurns indexOf: lastPlayer) +1 ]
 		

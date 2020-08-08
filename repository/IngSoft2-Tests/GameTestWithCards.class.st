@@ -14,6 +14,15 @@ GameTestWithCards >> createAccelerationCardsGenerator [
 ]
 
 { #category : #'extract methods' }
+GameTestWithCards >> createDoubleCardsGenerator [
+	| deck  aCardGenerator |	
+	deck := OrderedCollection new.
+	(1 to: 10) do: [ :each | deck add: Double  new ].
+	aCardGenerator := DeterministicDeck withFutureCards: deck.
+	^ aCardGenerator
+]
+
+{ #category : #'extract methods' }
 GameTestWithCards >> createOverloadCardsGenerator [
 	| deck  aCardGenerator |	
 	deck := OrderedCollection new.
@@ -27,6 +36,24 @@ GameTestWithCards >> createRepeatCardsGenerator [
 	| deck  aCardGenerator |	
 	deck := OrderedCollection new.
 	(1 to: 10) do: [ :each | deck add: Repeat new ].
+	aCardGenerator := DeterministicDeck withFutureCards: deck.
+	^ aCardGenerator
+]
+
+{ #category : #'extract methods' }
+GameTestWithCards >> createReverseCardsGenerator [ 
+	| deck  aCardGenerator |	
+	deck := OrderedCollection new.
+	(1 to: 10) do: [ :each | deck add: Reverse new ].
+	aCardGenerator := DeterministicDeck withFutureCards: deck.
+	^ aCardGenerator
+]
+
+{ #category : #'extract methods' }
+GameTestWithCards >> createSkipCardsGenerator [
+	| deck  aCardGenerator |	
+	deck := OrderedCollection new.
+	(1 to: 10) do: [ :each | deck add: Skip  new ].
 	aCardGenerator := DeterministicDeck withFutureCards: deck.
 	^ aCardGenerator
 ]
@@ -289,6 +316,44 @@ GameTestWithCards >> testCardsAreNotPlayableAfterGameEnds [
 		should: [ game playCard: overload1 fromPlayer: john forPlayer: tim ]
 		raise: AssertionFailure
 		withExceptionDo: [ :signal | self assert: signal messageText equals: 'Cards can not be played after the game has ended' ]
+]
+
+{ #category : #tests }
+GameTestWithCards >> testDoubleCardIsUsed [
+	| board john tim players dice dices game deck double1 double2 |
+	board := Board composedOf: GameTestWithoutCards new createTilesNormalTile.
+	john := 'John'.
+	tim := 'Tim'.
+	players := Array with: john with: tim.
+	dice := DeterministicDice withFutureThrows: #(5 1 5 1 5 1 5 1 5 1) andSides: 5.
+	dices := Array with: dice.
+	deck := self createDoubleCardsGenerator.
+	double1 := deck cards at: 1.
+	double2:= deck cards at: 3.
+	game := Game
+		playedBy: players
+		throwing: dices
+		onABoard: board
+		usingDeck: deck
+		withNumberOfLaps: 3.
+	self deny: game hasEnded.
+	self assert: (game spaceOf: john) equals: 1.
+	self assert: (game lapOf: john) equals: 0.
+	self assert: (game spaceOf: tim) equals: 1.
+	self assert: (game lapOf: tim) equals: 0.
+	game playCard: double1 fromPlayer: john.
+	self assert: (game handOf: john) size equals: 1.
+	game turnOf: john.
+	game turnOf: tim.
+	self assert: (game spaceOf: john) equals: 7.
+	self assert: (game lapOf: john) equals: 0.
+	self assert: (game spaceOf: tim) equals: 6.
+	self assert: (game lapOf: tim) equals: 0.
+	game playCard: double2 fromPlayer: tim.
+	self assert: (game spaceOf: john) equals: 8.
+	self assert: (game lapOf: john) equals: 0.
+	self assert: (game spaceOf: tim) equals: 6.
+	self assert: (game lapOf: tim) equals: 0.
 ]
 
 { #category : #tests }
@@ -687,6 +752,93 @@ GameTestWithCards >> testRepeatCardWithNoTilesActivated [
 	self assert: (game lapOf: john) equals: 0.
 	self assert: (game spaceOf: tim) equals: 1.
 	self assert: (game lapOf: tim) equals: 0
+]
+
+{ #category : #tests }
+GameTestWithCards >> testReverseCardIsUsed [
+	| board john tim bob poly players dice dices game deck reverse1 reverse2 |
+	board := Board composedOf: GameTestWithoutCards new createTilesNormalTile.
+	john := 'John'.
+	tim := 'Tim'.
+	bob := 'Bob'.
+	poly := 'Poly'.
+	players := Array with: john with: tim with: bob with: poly.
+	dice := DeterministicDice withFutureThrows: #(5 1 5 1 5 1 5 1 5 1) andSides: 5.
+	dices := Array with: dice.
+	deck := self createReverseCardsGenerator.
+	reverse1 := deck cards at: 1.
+	reverse2:= deck cards at: 2.
+	game := Game
+		playedBy: players
+		throwing: dices
+		onABoard: board
+		usingDeck: deck
+		withNumberOfLaps: 3.
+	self deny: game hasEnded.
+	self assert: (game spaceOf: john) equals: 1.
+	self assert: (game lapOf: john) equals: 0.
+	self assert: (game spaceOf: tim) equals: 1.
+	self assert: (game lapOf: tim) equals: 0.	
+	self assert: (game spaceOf: bob) equals: 1.
+	self assert: (game lapOf: bob) equals: 0.
+	self assert: (game spaceOf: poly) equals: 1.
+	self assert: (game lapOf: poly) equals: 0.
+	self assert: (game currentPlayer) equals: 'John'.
+	game playCard: reverse1 fromPlayer: john.
+	self assert: (game handOf: john) size equals: 1.
+	self assert: (game currentPlayer) equals: 'Poly'.
+	game turnOf: poly.
+	self assert: (game spaceOf: poly) equals: 6.
+	game turnOf: bob.
+	self assert: (game spaceOf: bob) equals: 2.
+	self assert: (game currentPlayer) equals: 'Tim'.
+	game playCard: reverse2 fromPlayer: john.
+	self assert: (game currentPlayer) equals: 'Bob'.
+	game turnOf: bob.
+	game turnOf: poly.
+	game turnOf: john.
+]
+
+{ #category : #tests }
+GameTestWithCards >> testSkipCardIsUsed [
+	| board john tim players dice dices game deck skip1 skip2 |
+	board := Board composedOf: GameTestWithoutCards new createTilesNormalTile.
+	john := 'John'.
+	tim := 'Tim'.
+	players := Array with: john with: tim.
+	dice := DeterministicDice withFutureThrows: #(5 1 5 1 5 1 5 1 5 1) andSides: 5.
+	dices := Array with: dice.
+	deck := self createSkipCardsGenerator.
+	skip1 := deck cards at: 1.
+	skip2:= deck cards at: 2.
+	game := Game
+		playedBy: players
+		throwing: dices
+		onABoard: board
+		usingDeck: deck
+		withNumberOfLaps: 3.
+	self deny: game hasEnded.
+	self assert: (game spaceOf: john) equals: 1.
+	self assert: (game lapOf: john) equals: 0.
+	self assert: (game spaceOf: tim) equals: 1.
+	self assert: (game lapOf: tim) equals: 0.
+	game playCard: skip1 fromPlayer: john.
+	self assert: (game handOf: john) size equals: 1.
+	game turnOf: tim.
+	self assert: (game spaceOf: john) equals: 1.
+	self assert: (game lapOf: john) equals: 0.
+	self assert: (game spaceOf: tim) equals: 6.
+	self assert: (game lapOf: tim) equals: 0.
+	game turnOf: john.
+		game assert: (game currentPlayer) = 'Tim'.
+	game playCard: skip2 fromPlayer: john.
+	game assert: (game currentPlayer) = 'John'.
+	game turnOf: john.
+	self assert: (game spaceOf: john) equals: 7.
+	self assert: (game lapOf: john) equals: 0.
+	self assert: (game spaceOf: tim) equals: 6.
+	self assert: (game lapOf: tim) equals: 0.
+
 ]
 
 { #category : #tests }

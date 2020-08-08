@@ -13,7 +13,8 @@ Class {
 		'playerHands',
 		'activePermanentCards',
 		'lastTileActivated',
-		'lastCardActivated'
+		'lastCardActivated',
+		'orderOfTurns'
 	],
 	#category : #'IngSoft2-Model'
 }
@@ -77,8 +78,9 @@ Game >> changePositionOf: aPlayer by: anAmount [
 ]
 
 { #category : #accessing }
-Game >> currentPlayer [ 
-	^self players at: turn.
+Game >> currentPlayer [
+	^orderOfTurns at: turn.
+
 ]
 
 { #category : #accessing }
@@ -106,6 +108,7 @@ Game >> hasEnded [
 Game >> initializePlayedBy: aGroupOfPlayers throwing: aGroupOfDices onABoard: aBoard usingDeck: aDeck withNumberOfLaps: aNumberOfLaps [
 	dices := aGroupOfDices.
 	board := aBoard.
+	orderOfTurns := aGroupOfPlayers.
 	turn := 1.
 	stateOfGame := GamePlaying new.
 	positions := Dictionary new.
@@ -189,7 +192,7 @@ Game >> playTurnFor: aPlayer [
 
 { #category : #accessing }
 Game >> players [
-^(positions keysSortedSafely)
+^orderOfTurns
 ]
 
 { #category : #initialization }
@@ -203,9 +206,27 @@ Game >> preparePlayers: aGroupOfPlayers [
 			activePermanentCards at: player put: OrderedCollection new ]
 ]
 
+{ #category : #actions }
+Game >> printTurn [
+	 self printOn:  'asd'.
+
+]
+
 { #category : #removing }
 Game >> removePermanentCard: aCard from: aPlayer [
 	(activePermanentCards at: aPlayer) removeAllSuchThat: [ :card | aCard  = card  ]
+]
+
+{ #category : #actions }
+Game >> reverseTheOrderOfPlayers [
+ |lastPlayer|
+		lastPlayer:= orderOfTurns at: turn.		
+		orderOfTurns := orderOfTurns reversed.
+
+		turn:= (orderOfTurns indexOf: lastPlayer)+1 > self players size
+			ifTrue: [ 1 ]
+			ifFalse: [ (orderOfTurns indexOf: lastPlayer) +1 ]
+		
 ]
 
 { #category : #accessing }

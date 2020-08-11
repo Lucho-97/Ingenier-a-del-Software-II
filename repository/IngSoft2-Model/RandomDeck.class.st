@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #actions }
-RandomDeck >> drawCardInGame [
+RandomDeck >> drawCardInGame: aGame [
 ^ OrderedCollection new
 		add: Overload new;
 		add: Speed new;
@@ -13,5 +13,8 @@ RandomDeck >> drawCardInGame [
 		add: Cancellation new;
 		add: Redo new;
 		add: Repeat new;
+		add: Double new;
+		add: Skip new;
+		add: Reverse new;
 		atRandom
 ]

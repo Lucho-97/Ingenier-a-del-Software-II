@@ -5,6 +5,6 @@ Class {
 }
 
 { #category : #actions }
-NormalTile >> activateEffectforIn: aGame forPlayer: aPlayer [
+NormalTile >> activateEffectIn: aGame forPlayer: aPlayer [
 	
 ]

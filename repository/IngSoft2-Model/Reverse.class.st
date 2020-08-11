@@ -6,4 +6,5 @@ Class {
 
 { #category : #actions }
 Reverse >> activateCardEffectIn: aGame [
+	aGame reverseTheOrderOfPlayers
 ]

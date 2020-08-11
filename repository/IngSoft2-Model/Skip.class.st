@@ -5,7 +5,5 @@ Class {
 }
 
 { #category : #actions }
-Skip >> activateCardEffectIn: aGame [
-	aGame advanceTurn
-	
+Skip >> activateCardEffectForPlayer: aTargetPlayer in: aGame [
 ]

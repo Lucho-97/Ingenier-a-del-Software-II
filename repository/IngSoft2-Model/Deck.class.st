@@ -5,6 +5,6 @@ Class {
 }
 
 { #category : #actions }
-Deck >> drawCardInGame: aGame [
-self subclassResponsibility 
+Deck >> drawCardInGame [
+	self subclassResponsibility 
 ]

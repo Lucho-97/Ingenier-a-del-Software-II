@@ -13,8 +13,7 @@ Class {
 		'playerHands',
 		'activePermanentCards',
 		'lastTileActivated',
-		'lastCardActivated',
-		'orderOfTurns'
+		'lastCardActivated'
 	],
 	#category : #'IngSoft2-Model'
 }
@@ -78,9 +77,8 @@ Game >> changePositionOf: aPlayer by: anAmount [
 ]
 
 { #category : #accessing }
-Game >> currentPlayer [
-	^orderOfTurns at: turn.
-
+Game >> currentPlayer [ 
+	^self players at: turn.
 ]
 
 { #category : #accessing }
@@ -89,14 +87,14 @@ Game >> currentTilefor: aPlayer [
 ]
 
 { #category : #actions }
-Game >> drawCardForPlayer: aPlayer [
+Game >> drawCardForPlayer: aPlayer [ 
 	(self handOf: aPlayer) add: (cardGenerator drawCardInGame: self)
 	
 ]
 
 { #category : #accessing }
 Game >> handOf: aPlayer [ 
-	^ playerHands at: aPlayer ifAbsent: [ AssertionFailure signal: 'The player does not exist' ]
+	^ playerHands at: aPlayer ifAbsent: [ AssertionFailure signal: 'The player does not exist'  ]
 ]
 
 { #category : #asserting }
@@ -105,10 +103,9 @@ Game >> hasEnded [
 ]
 
 { #category : #initialization }
-Game >> initializePlayedBy: aGroupOfPlayers throwing: aGroupOfDices onABoard: aBoard usingDeck: aDeck withNumberOfLaps: aNumberOfLaps [
+Game >> initializePlayedBy: aGroupOfPlayers throwing: aGroupOfDices onABoard: aBoard usingDeck: aDeck withNumberOfLaps: aNumberOfLaps [ 
 	dices := aGroupOfDices.
 	board := aBoard.
-	orderOfTurns := aGroupOfPlayers.
 	turn := 1.
 	stateOfGame := GamePlaying new.
 	positions := Dictionary new.
@@ -149,6 +146,37 @@ Game >> placeOf: aPlayer [
 ]
 
 { #category : #actions }
+Game >> playAccelerationFromPlayer: aPlayer [
+	| firstCardFound |
+	stateOfGame assertCanPlayCard.
+	self assertPlayerExists: aPlayer.
+	firstCardFound := (playerHands at: aPlayer)
+		detect: [ :card | card class = Acceleration ]
+		ifNone: [ AssertionFailure signal: 'The player does not possess an Acceleration card' ].
+	firstCardFound isPlayableBy: aPlayer in: self.
+	firstCardFound isPlayableBy: aPlayer in: self.
+	lastCardActivated := firstCardFound.
+	(playerHands at: aPlayer) remove: firstCardFound
+]
+
+{ #category : #actions }
+Game >> playCancellationFromPlayer: aPlayer ForCard: aCard [
+	| firstCardFound |
+	stateOfGame assertCanPlayCard.
+	self assertPlayerExists: aPlayer.
+	self activePermanentCards values
+		detect: [ :cardsOfPlayer | cardsOfPlayer includes: aCard ]
+		ifNone: [ AssertionFailure signal: 'Cancellation requires an active permanent card to cancel' ].
+	firstCardFound := (playerHands at: aPlayer)
+		detect: [ :card | card class = Cancellation ]
+		ifNone: [ AssertionFailure signal: 'The player does not possess a Cancellation card' ].
+	firstCardFound isPlayableBy: aCard in: self.
+	lastCardActivated := firstCardFound.
+	(playerHands at: aPlayer) remove: firstCardFound.
+	
+]
+
+{ #category : #actions }
 Game >> playCard: aCard fromPlayer: aPlayer [
 	stateOfGame assertCanPlayCard.
 	aCard isPlayableBy: aPlayer in: self.
@@ -159,40 +187,80 @@ Game >> playCard: aCard fromPlayer: aPlayer [
 ]
 
 { #category : #actions }
-Game >> playCard: aCard fromPlayer: aPlayer forCard: targetCard [ 
+Game >> playOverloadFromPlayer: aPlayer toPlayer: targetPlayer [
+	| firstCardFound |
 	stateOfGame assertCanPlayCard.
-	aCard isPlayableBy: aPlayer in: self.
-	aCard activateCardEffectForCard: targetCard in: self.
-	aCard class = Redo
-		ifFalse: [ lastCardActivated := aCard ].
-	
-	(self handOf: aPlayer) remove: aCard
+	self assertPlayerExists: aPlayer.
+	self assertPlayerExists: targetPlayer.
+	 firstCardFound := (playerHands at: aPlayer)
+				detect: [ :card | card class = Overload ]
+				ifNone: [ AssertionFailure signal: 'The player does not possess an Overload card' ].
+			firstCardFound isPlayableBy: aPlayer in: self.
+			firstCardFound isPlayableBy: targetPlayer in: self.
+			lastCardActivated := firstCardFound.
+			(playerHands at: aPlayer) remove: firstCardFound 
+		
 ]
 
 { #category : #actions }
-Game >> playCard: aCard fromPlayer: aPlayer forPlayer: targetPlayer [
+Game >> playRedoFromPlayer: aPlayer for: aTarget [
+	| firstCardFound |
 	stateOfGame assertCanPlayCard.
-	aCard isPlayableBy: aPlayer in: self.
-	aCard activateCardEffectForPlayer: targetPlayer in: self.
-	aCard class = Redo
-		ifFalse: [ lastCardActivated := aCard ].
-	(self handOf: aPlayer) remove: aCard
+	self assertPlayerExists: aPlayer.
+	(Card allSubclasses includes: aTarget class) | (self players includes: aTarget)
+		ifFalse: [ AssertionFailure signal: 'The target for Redo is not correct for this card' ].
+	firstCardFound := (playerHands at: aPlayer) detect: [ :card | card class = Redo ] ifNone: [ AssertionFailure signal: 'The player does not possess a Redo card' ].
+	firstCardFound isPlayableBy: aTarget in: self.
+	(playerHands at: aPlayer) remove: firstCardFound.
+	self recalculateLaps
+]
+
+{ #category : #actions }
+Game >> playRepeatFromPlayer: aPlayer [
+	| firstCardFound |
+	stateOfGame assertCanPlayCard.
+	self assertPlayerExists: aPlayer.
+	firstCardFound := (playerHands at: aPlayer) detect: [ :card | card class = Repeat ] ifNone: [ AssertionFailure signal: 'The player does not possess an Repeat card' ].
+	firstCardFound isPlayableBy: lastTileActivated value in: self.
+	lastCardActivated := firstCardFound.
+	(playerHands at: aPlayer) remove: firstCardFound.
+	self recalculateLaps
+]
+
+{ #category : #actions }
+Game >> playSpeedFromPlayer: aPlayer toPlayer: targetPlayer [
+	| firstCardFound |
+	stateOfGame assertCanPlayCard.
+	self assertPlayerExists: aPlayer.
+	self assertPlayerExists: targetPlayer.
+	firstCardFound := (playerHands at: aPlayer)
+				detect: [ :card | card class = Speed ]
+				ifNone: [ AssertionFailure signal: 'The player does not possess an Speed card' ].
+			firstCardFound isPlayableBy: aPlayer in: self.
+			firstCardFound isPlayableBy: targetPlayer in: self.
+			lastCardActivated := firstCardFound.
+			(playerHands at: aPlayer) remove: firstCardFound 
+		
 ]
 
 { #category : #accessing }
-Game >> playTurnFor: aPlayer [ 
-	self changePositionOf: aPlayer by: (self calculateTilesToMoveFor: aPlayer).
+Game >> playTurnFor: aPlayer [
+	| totalRoll |
+	totalRoll := dices sumNumbers: [ :dice | dice throw ].
+	totalRoll := totalRoll + ((activePermanentCards at: aPlayer) sumNumbers: [ :card | card tilesToMove ]).
 	
+	self changePositionOf: aPlayer by: totalRoll.
+	self recalculateLaps.
 	lastTileActivated := (self currentTilefor: aPlayer) -> aPlayer.
-	(self currentTilefor: aPlayer) activateEffectIn: self forPlayer: self currentPlayer.
-
+	(self currentTilefor: aPlayer) activateEffectforIn: self forPlayer: self currentPlayer.
+	self recalculateLaps.
 	(self lapOf: aPlayer) >= winningLap
 		ifTrue: [ self updateGameState ]
 ]
 
 { #category : #accessing }
 Game >> players [
-^orderOfTurns
+^(positions keysSortedSafely)
 ]
 
 { #category : #initialization }
@@ -209,18 +277,6 @@ Game >> preparePlayers: aGroupOfPlayers [
 { #category : #removing }
 Game >> removePermanentCard: aCard from: aPlayer [
 	(activePermanentCards at: aPlayer) removeAllSuchThat: [ :card | aCard  = card  ]
-]
-
-{ #category : #actions }
-Game >> reverseTheOrderOfPlayers [
- |lastPlayer|
-		lastPlayer:= orderOfTurns at: turn.		
-		orderOfTurns := orderOfTurns reversed.
-
-		turn:= (orderOfTurns indexOf: lastPlayer)+1 > orderOfTurns size
-			ifTrue: [ 1 ]
-			ifFalse: [ (orderOfTurns indexOf: lastPlayer) +1 ]
-		
 ]
 
 { #category : #accessing }
